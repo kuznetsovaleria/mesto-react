@@ -1,43 +1,27 @@
 import React from "react";
-import api from "../api/api.js";
 import Card from "../components/Card";
+import { CurrentUserContext } from "../contexts/CurrentUserContext.js";
 
 function Main(props) {
-  const [userName, setUserName] = React.useState("");
-  const [userDescription, setUserDescription] = React.useState("");
-  const [userAvatar, setUserAvatar] = React.useState("");
-  const [cards, setCards] = React.useState([]);
-
-  React.useEffect(() => {
-    Promise.all([api.getUserData(), api.getInitialCards()])
-      .then(([user, cards]) => {
-        setUserName(user.name);
-        setUserDescription(user.about);
-        setUserAvatar(user.avatar);
-        setCards(cards);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  }, []);
+  const currentUser = React.useContext(CurrentUserContext);
 
   return (
     <main className="content">
       <section className="profile page__profile">
         <img
-          src={userAvatar}
-          alt={userName}
+          src={currentUser.avatar}
+          alt={currentUser.name}
           className="profile__avatar"
           onClick={props.onEditAvatar}
         />
         <div className="profile__info">
-          <h1 className="profile__name">{userName}</h1>
+          <h1 className="profile__name">{currentUser.name}</h1>
           <button
             className="profile__edit-button"
             aria-label="Открыть"
             onClick={props.onEditProfile}
           ></button>
-          <p className="profile__profession">{userDescription}</p>
+          <p className="profile__profession">{currentUser.about}</p>
         </div>
         <button
           className="profile__add-button"
@@ -47,9 +31,15 @@ function Main(props) {
       </section>
 
       <section className="cards page__cards">
-        {cards.map((card) => {
+        {props.cards.map((card) => {
           return (
-            <Card key={card._id} card={card} onCardClick={props.onCardClick} />
+            <Card
+              key={card._id}
+              card={card}
+              onCardClick={props.onCardClick}
+              onCardLike={props.onCardLike}
+              onCardDelete={props.onCardDelete}
+            />
           );
         })}
       </section>
